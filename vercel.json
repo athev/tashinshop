@@ -1,15 +1,14 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/HangHoanApp/index.html" },
-    { "source": "/css/(.*)", "destination": "/HangHoanApp/css/$1" },
-    { "source": "/js/(.*)", "destination": "/HangHoanApp/js/$1" },
-    { "source": "/vendor/(.*)", "destination": "/HangHoanApp/vendor/$1" },
-    { "source": "/icon.svg", "destination": "/HangHoanApp/icon.svg" },
-    { "source": "/manifest.webmanifest", "destination": "/HangHoanApp/manifest.webmanifest" },
-    { "source": "/HangHoanApp", "destination": "/HangHoanApp/index.html" },
-    { "source": "/HangHoanApp/", "destination": "/HangHoanApp/index.html" },
-    { "source": "/HangHoanApp/(.*)", "destination": "/HangHoanApp/$1" }
+  "routes": [
+    { "src": "^/css/(.*)$", "dest": "/HangHoanApp/css/$1" },
+    { "src": "^/js/(.*)$", "dest": "/HangHoanApp/js/$1" },
+    { "src": "^/vendor/(.*)$", "dest": "/HangHoanApp/vendor/$1" },
+    { "src": "^/icon\\.svg$", "dest": "/HangHoanApp/icon.svg" },
+    { "src": "^/manifest\\.webmanifest$", "dest": "/HangHoanApp/manifest.webmanifest" },
+    { "src": "^/HangHoanApp/?$", "dest": "/HangHoanApp/index.html" },
+    { "src": "^/HangHoanApp/(.*)$", "dest": "/HangHoanApp/$1" },
+    { "src": "^/$", "dest": "/HangHoanApp/index.html" }
   ]
 }
