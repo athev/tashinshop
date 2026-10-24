@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/HangHoanApp/index.html" },
+    { "source": "/css/(.*)", "destination": "/HangHoanApp/css/$1" },
+    { "source": "/js/(.*)", "destination": "/HangHoanApp/js/$1" },
+    { "source": "/vendor/(.*)", "destination": "/HangHoanApp/vendor/$1" },
+    { "source": "/icon.svg", "destination": "/HangHoanApp/icon.svg" },
+    { "source": "/manifest.webmanifest", "destination": "/HangHoanApp/manifest.webmanifest" },
+    { "source": "/HangHoanApp", "destination": "/HangHoanApp/index.html" },
+    { "source": "/HangHoanApp/", "destination": "/HangHoanApp/index.html" },
+    { "source": "/HangHoanApp/(.*)", "destination": "/HangHoanApp/$1" }
+  ]
+}
