@@ -60,13 +60,20 @@
     }
     if (session.mode === 'local') {
       loadLocal();
-      session.role = localStorage.getItem('kp_role') || 'admin';
+      session.role = localStorage.getItem('kp_role') || null;
       return session;
     }
     if (session.token) { try { await refresh(); } catch (e) { if (e.status !== 401) throw e; } }
     return session;
   }
   async function login(pin) {
+    if (session.mode === 'local') {
+      const role = String(pin) === '1234' ? 'admin' : String(pin) === '5678' ? 'owner' : null;
+      if (!role) throw new Error('Mã PIN không đúng (mặc định: admin 1234, chủ shop 5678)');
+      session.role = role;
+      localStorage.setItem('kp_role', role);
+      return role;
+    }
     const j = await api('POST', '/api/login', { pin });
     session.token = j.token; session.role = j.role;
     localStorage.setItem('kp_token', j.token);
@@ -81,7 +88,9 @@
   }
   function logout() {
     if (session.mode === 'server') api('POST', '/api/logout').catch(() => {});
-    session.token = ''; session.role = null; localStorage.removeItem('kp_token');
+    session.token = ''; session.role = null;
+    localStorage.removeItem('kp_token');
+    localStorage.removeItem('kp_role');
   }
   function setLocalRole(r) { session.role = r; localStorage.setItem('kp_role', r); }
 

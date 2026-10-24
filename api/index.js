@@ -8,16 +8,25 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 // --- Supabase / Postgres Configuration ---
 let pgPool = null;
 function getPgPool() {
   if (!pgPool) {
     const { Pool } = require('pg');
-    const connStr = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL;
+    let connStr = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL || '';
+    
+    // Loại bỏ tham số sslmode trong URL để pg không ghi đè rejectUnauthorized: false
+    connStr = connStr.replace(/([?&])sslmode=[^&]*(&|$)/g, (m, p1, p2) => (p2 === '&' ? p1 : ''));
+    if (connStr.endsWith('?') || connStr.endsWith('&')) connStr = connStr.slice(0, -1);
+
     pgPool = new Pool({
       connectionString: connStr,
-      ssl: { rejectUnauthorized: false },
-      max: 3,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+      max: 4,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
     });
