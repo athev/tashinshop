@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đang mở Ứng dụng Hàng Hoàn Shopee · Khánh Phong</title>
+  <style>
+    body {
+      background: #0b0f19;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 440px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .logo {
+      width: 52px; height: 52px; border-radius: 12px;
+      background: linear-gradient(135deg, #ee4d2d, #ff7337);
+      color: #fff; font-weight: bold; font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    h2 { margin: 0 0 10px; font-size: 20px; }
+    p { color: #94a3b8; font-size: 14px; margin: 0 0 20px; line-height: 1.5; }
+    .btn {
+      display: block;
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      font-size: 15px;
+      transition: all .2s;
+    }
+    .btn-srv {
+      background: #ee4d2d;
+      box-shadow: 0 4px 14px rgba(238,77,45,0.35);
+    }
+    .btn-srv:hover { background: #d73211; }
+    .btn-loc {
+      background: rgba(255,255,255,0.08);
+      color: #cbd5e1;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-loc:hover { background: rgba(255,255,255,0.15); }
+    .spin {
+      width: 24px; height: 24px; border: 3px solid rgba(238,77,45,0.3);
+      border-top-color: #ee4d2d; border-radius: 50%;
+      animation: s .8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes s { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">KP</div>
+    <div class="spin" id="spinner"></div>
+    <h2 id="title">Đang kết nối vào hệ thống...</h2>
+    <p id="desc">Hệ thống đang kiểm tra máy chủ nội bộ. Đang tự động chuyển hướng...</p>
+    <div id="links" style="display:none">
+      <a class="btn btn-srv" id="link-server" href="http://localhost:3838/">Mở qua Máy Chủ (Dùng chung với điện thoại)</a>
+      <a class="btn btn-loc" href="HangHoanApp/index.html">Mở Chế Độ Ngoại Tuyến (Offline)</a>
+    </div>
+  </div>
+
+  <script>
+    (async function() {
+      try {
+        const r = await fetch('http://localhost:3838/api/ping', { cache: 'no-store' });
+        const j = await r.json();
+        if (j && j.ok) {
+          location.replace('http://localhost:3838/');
+          return;
+        }
+      } catch (e) {
+        // May chu chua bat
+      }
+      // Neu khong ket noi duoc sau 1.2s -> hien nut bam hoac tu dong mo HangHoanApp/index.html
+      setTimeout(function() {
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('title').textContent = 'Chọn cách mở ứng dụng';
+        document.getElementById('desc').innerHTML = 'Nếu đang bật máy chủ, hãy bấm nút cam để đồng bộ với điện thoại. Nếu mở nhanh trên máy tính, bấm nút bên dưới.';
+        document.getElementById('links').style.display = 'block';
+      }, 500);
+    })();
+  </script>
+</body>
+</html>

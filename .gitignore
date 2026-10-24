@@ -1,0 +1,43 @@
+# Node dependencies
+node_modules/
+tools/node_modules/
+
+# Portable browser & binaries
+App/
+FirefoxPortable.exe
+FirefoxPortable.ini
+*.exe
+*.dll
+
+# Video & large archives
+*.mp4
+*.zip
+*.rar
+*.7z
+
+# Shopee raw reports & customer data Excel files
+*.xlsx
+*.xlsm
+ShopeeData/
+Data/
+Report/
+Other/
+
+# Dynamic state and token storage
+HangHoanData/sales.json
+HangHoanData/state.json
+HangHoanData/tokens.json
+
+# Raw screenshots & loose media in root
+*.jpg
+*.png
+*.webp
+*.pdf
+!HangHoanApp/**
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.gemini/

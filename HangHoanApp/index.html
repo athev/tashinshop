@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Hàng hoàn">
+  <title>Theo dõi Hàng Hoàn & Doanh số Shopee · Khánh Phong</title>
+  <meta name="description" content="Admin và chủ shop cùng theo dõi đơn hoàn, hủy, giao thất bại Shopee: đơn cần xử lý, hạn xử lý, trạng thái thực tế và báo cáo doanh số.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- ============ ĐĂNG NHẬP ============ -->
+<section class="login" id="login" hidden>
+  <div class="login-card card">
+    <div class="brand-logo login-logo">KP</div>
+    <h1>Hàng hoàn Shopee</h1>
+    <p class="muted" style="margin-bottom:16px">Chọn vai trò để vào ngay hoặc nhập mã PIN bên dưới.</p>
+    
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-primary btn-lg" id="btn-quick-owner" type="button" style="display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:15px;background:var(--brand);">
+        🏪 Vào với quyền CHỦ SHOP
+      </button>
+      <button class="btn btn-secondary btn-lg" id="btn-quick-admin" type="button" style="display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:15px;">
+        ⚙️ Vào với quyền ADMIN
+      </button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--text-3);font-size:12px;">
+      <span style="flex:1;height:1px;background:var(--border);"></span>
+      <span>hoặc nhập mã PIN</span>
+      <span style="flex:1;height:1px;background:var(--border);"></span>
+    </div>
+
+    <form id="login-form" autocomplete="off">
+      <input class="input pin-input" id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" placeholder="PIN: admin 1234 · chủ shop 5678" autocomplete="current-password">
+      <div class="login-error" id="login-error" role="alert"></div>
+      <button class="btn btn-ghost" id="login-btn" type="submit" style="width:100%;margin-top:8px;">Vào bằng mã PIN này</button>
+    </form>
+  </div>
+</section>
+
+<div class="app" id="app" hidden>
+  <!-- ============ ĐIỀU HƯỚNG (cột trái trên máy tính / thanh dưới trên điện thoại) ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">KP</div>
+      <div>
+        <h1>Hàng hoàn Shopee</h1>
+        <small>Khánh Phong · Tashin</small>
+      </div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Điều hướng chính"></nav>
+    <div class="sidebar-foot" id="sidebar-foot"></div>
+  </aside>
+
+  <main class="main">
+    <!-- Thanh trên: vai trò + dữ liệu cập nhật đến ngày -->
+    <header class="topbar">
+      <div class="tb-left">
+        <div class="tb-brand"><div class="brand-logo sm">KP</div></div>
+        <h2 class="tb-title" id="tb-title"></h2>
+      </div>
+      <div class="tb-right">
+        <span class="role-chip" id="role-chip"></span>
+        <div class="seg role-switch" id="role-switch" hidden>
+          <button data-role="admin" type="button">Admin</button>
+          <button data-role="owner" type="button">Chủ shop</button>
+        </div>
+        <button class="icon-btn" id="btn-refresh" type="button" title="Tải lại dữ liệu" aria-label="Tải lại dữ liệu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-logout" type="button" title="Đăng xuất" aria-label="Đăng xuất">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </header>
+    <div id="asof"></div>
+
+    <!-- TỔNG QUAN (admin) -->
+    <section class="page" id="page-dashboard">
+      <div class="who-grid" id="who-grid"></div>
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div class="card-title">Luồng xử lý <small>Bấm vào từng bước để xem danh sách</small></div>
+        <div class="flow" id="flow"></div>
+      </div>
+      <div class="dash-grid">
+        <div class="card card-pad">
+          <div class="card-title">Việc gấp <small id="urgent-sub"></small></div>
+          <div id="urgent-list"></div>
+        </div>
+        <div class="card card-pad">
+          <div class="card-title">Đơn mới / có cập nhật <button class="btn btn-sm btn-ghost" id="btn-seen-all" type="button">Đã xem hết</button></div>
+          <div id="new-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CẦN XỬ LÝ -->
+    <section class="page" id="page-queue">
+      <div class="tabs" id="queue-tabs" role="tablist"></div>
+      <p class="tab-hint" id="queue-hint"></p>
+      <div class="cards" id="queue-list"></div>
+    </section>
+
+    <!-- TẤT CẢ ĐƠN -->
+    <section class="page" id="page-cases">
+      <div class="toolbar">
+        <input class="input" id="f-search" type="search" placeholder="Tìm tên người mua, mã đơn, mã yêu cầu…">
+        <select class="select" id="f-type" aria-label="Loại">
+          <option value="">Mọi loại</option>
+          <option value="failed">Giao hàng thất bại</option>
+          <option value="return">Yêu cầu hoàn hàng</option>
+          <option value="cancel">Hủy sau khi gửi</option>
+        </select>
+        <select class="select" id="f-stage" aria-label="Trạng thái"></select>
+      </div>
+      <p class="tab-hint" id="cases-sub"></p>
+      <div class="cards" id="cases-list"></div>
+      <div class="center" id="cases-more"></div>
+    </section>
+
+    <!-- DOANH SỐ -->
+    <section class="page" id="page-sales">
+      <div class="chip-row" id="sales-chips"></div>
+      <div id="sales-body"></div>
+    </section>
+
+    <!-- TẢI FILE (admin) -->
+    <section class="page" id="page-upload">
+      <div class="card card-pad">
+        <label class="drop" id="drop">
+          <input type="file" id="file-input" multiple accept=".xlsx,.xls,.xlsm,.csv" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="M9 15l3-3 3 3"/></svg>
+          <h3>Chọn hoặc kéo thả file Excel Shopee</h3>
+          <p>Chọn nhiều file cùng lúc · .xlsx · .xls · .xlsm</p>
+        </label>
+        <div class="file-types">
+          <div class="ftype"><b>🚚 Giao hàng thất bại</b><code>Order.failed_delivery.*.xlsx</code></div>
+          <div class="ftype"><b>↩️ Trả hàng / Hoàn tiền</b><code>Order.return_refund.*.xls</code></div>
+          <div class="ftype"><b>✖️ Đơn hủy</b><code>Order.cancelled.*.xlsx</code></div>
+          <div class="ftype"><b>💰 Tất cả đơn (doanh số)</b><code>Order.all.*.xlsx</code></div>
+        </div>
+        <div class="import-result" id="import-result"></div>
+      </div>
+      <div class="card card-pad" style="margin-top:16px">
+        <div class="card-title">Lịch sử tải file</div>
+        <div id="import-history"></div>
+      </div>
+    </section>
+
+    <!-- CÀI ĐẶT (admin) -->
+    <section class="page" id="page-settings">
+      <div class="card card-pad" id="share-card" style="margin-bottom:16px" hidden>
+        <div class="card-title">Chia sẻ cho chủ shop</div>
+        <p class="muted" style="margin:0 0 10px">Chủ shop mở link này trên điện thoại (cùng wifi), nhập PIN chủ shop. Có thể “Thêm vào màn hình chính” để dùng như app.</p>
+        <div id="share-links"></div>
+      </div>
+      <div class="guide-grid" id="guide-grid"></div>
+      <div class="card card-pad" style="margin-top:16px">
+        <div class="card-title">Cài đặt</div>
+        <div class="settings-grid">
+          <label class="field">Số ngày hàng hoàn dự kiến về shop<input class="input" type="number" min="1" id="set-return-days" inputmode="numeric"></label>
+          <label class="field">Số ngày nhắc theo dõi khiếu nại<input class="input" type="number" min="1" id="set-follow-days" inputmode="numeric"></label>
+          <label class="field">Tên shop (dùng trong tin nhắn mẫu)<input class="input" id="set-shop"></label>
+          <label class="field">Người phụ trách mặc định<input class="input" id="set-owner" placeholder="VD: Vi"></label>
+        </div>
+        <div class="btn-row" style="margin-top:14px">
+          <button class="btn btn-primary" id="btn-save-settings" type="button">Lưu cài đặt</button>
+        </div>
+      </div>
+      <div class="card card-pad" style="margin-top:16px" id="pin-card" hidden>
+        <div class="card-title">Mã PIN đăng nhập</div>
+        <div class="settings-grid">
+          <label class="field">PIN Admin (4–8 số)<input class="input" id="pin-admin" inputmode="numeric" maxlength="8"></label>
+          <label class="field">PIN Chủ shop (4–8 số)<input class="input" id="pin-owner" inputmode="numeric" maxlength="8"></label>
+        </div>
+        <div class="btn-row" style="margin-top:14px"><button class="btn btn-primary" id="btn-save-pins" type="button">Đổi mã PIN</button></div>
+        <p class="muted" style="margin:10px 0 0;font-size:12.5px">Đổi PIN sẽ đăng xuất các thiết bị khác. Mặc định ban đầu: admin 1234, chủ shop 5678 — nên đổi ngay.</p>
+      </div>
+      <div class="card card-pad" style="margin-top:16px">
+        <div class="card-title">Dữ liệu</div>
+        <div class="btn-row">
+          <button class="btn" id="btn-export-xlsx" type="button">Xuất Excel</button>
+          <button class="btn" id="btn-backup" type="button">Sao lưu (.json)</button>
+          <label class="btn" for="restore-input">Khôi phục<input type="file" id="restore-input" accept=".json" hidden></label>
+          <button class="btn btn-blue" id="btn-reload-seed" type="button">Nạp lại dữ liệu gốc (.xlsm)</button>
+          <button class="btn btn-red" id="btn-clear" type="button">Xóa toàn bộ</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- CHI TIẾT (ngăn kéo trên máy tính / toàn màn hình trên điện thoại) -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head" id="drawer-head"></div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+<div class="toasts" id="toasts"></div>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script src="js/workflow.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/sales.js"></script>
+<script src="js/seed_data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
