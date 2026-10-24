@@ -2,6 +2,8 @@
   "version": 2,
   "cleanUrls": true,
   "routes": [
+    { "src": "^/api/(.*)$", "dest": "/api/index.js" },
+    { "src": "^/api$", "dest": "/api/index.js" },
     { "src": "^/css/(.*)$", "dest": "/HangHoanApp/css/$1" },
     { "src": "^/js/(.*)$", "dest": "/HangHoanApp/js/$1" },
     { "src": "^/vendor/(.*)$", "dest": "/HangHoanApp/vendor/$1" },
